@@ -33,11 +33,10 @@ public class MixinChunkProviderServer_DeferPopulation {
     private void hodgepodge$deferPopulation(Chunk chunk, IChunkProvider p1, IChunkProvider p2, int x, int z) {
         final var scheduler = ChunkGenScheduler.forDimension(worldObj.provider.dimensionId);
 
-        // Excluded dimensions (e.g. Thaumcraft outer lands) must never defer population, even when called from
-        // within another population pass (populationDepth > 0). Deferring neighbour chunks in these dimensions
-        // causes incomplete structure generation (e.g. gaps in the eldritch maze where corridor walls that span
-        // chunk borders are missing because the neighbour chunk had only terrain when the current chunk was
-        // populated). Allow cascading synchronous population for excluded dimensions.
+        // Excluded dimensions must never defer population, even when called from within another population pass
+        // (populationDepth > 0). Deferring neighbour chunks in excluded dimensions can cause incomplete structure
+        // generation where multi-chunk structures spanning chunk borders are missing sections. Allow cascading
+        // synchronous population for excluded dimensions.
         if (!ChunkGenScheduler.isDimExcludedFromChunkThrottle(worldObj.provider.dimensionId)
                 && scheduler.getPopulationDepth() > 0
                 && ChunkGenScheduler.hasTickingStarted()) {
